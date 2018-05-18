@@ -1,5 +1,21 @@
 <!DOCTYPE html>
+<h1 style = "text-align:center; color:steelblue"><bold> Belgium Population Density </bold></h1>
 <svg width="960" height="1100"></svg>
+<style>
+    div.tooltip {
+        position: absolute;
+        text-align: left;
+    /*    width: 100px;*/
+    /*    height: 100px;*/
+        padding: 2px;
+        font: 20px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+</style>
+<h2>Nikolai Chen</h2>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
@@ -21,6 +37,11 @@ var g = svg.append("g")
     .attr("class", "key")
     .attr("transform", "translate(0,40)");
 
+var div = d3.select("body")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
 g.selectAll("rect")
   .data(color.range().map(function(d) {
       d = color.invertExtent(d);
@@ -65,7 +86,20 @@ var projection = d3.geoMercator()
     .data(topology.features)
     .enter().append("path")
       .attr("fill", function(d) { return color(d.properties.density); })
-      .attr("d", path);
+      .attr("d", path)
+    .on("mouseover", function (d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", 0.9);
+            div.html(d.properties.NAME_2 + "<br/>Population Density: " + d.properties.density + "/km<sup>2</sup>")
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on("mouseout", function () {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
+        });
 
   svg.selectAll("path")
       .data(topology.features)
